@@ -1,6 +1,6 @@
 # Asynchrnous Spatio-Temporal Spike Metric for Event Camera
 
-This work is implemented by [Ruihui Li](https://jianing-li.github.io), Yihua Fu, Siwei Dong, [Tiejun Huang](https://scholar.google.com/citations?user=knvEK4AAAAAJ&hl=zh-CN) and [Yonghong Tian](https://scholar.google.com/citations?user=fn6hJx0AAAAJ&hl=zh-CN)
+This work is implemented by [Jianing Li](https://jianing-li.github.io), Yihua Fu, Siwei Dong, [Tiejun Huang](https://scholar.google.com/citations?user=knvEK4AAAAAJ&hl=zh-CN) and [Yonghong Tian](https://scholar.google.com/citations?user=fn6hJx0AAAAJ&hl=zh-CN)
 
 
 ### Introduction
