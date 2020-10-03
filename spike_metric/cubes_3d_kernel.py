@@ -21,10 +21,11 @@ def cubes_3d_kernel_method(events, new_events, x_sigma, y_sigma, t_sigma):
         inner_product    - the inner product between events and new_events.
 
     """
-
-    ON_scale = np.sum(events[0, :]==1)/len(events[0, :]) # ON events in history
+    #print('events number={}'.format(len(events[0,:])))
+    #print('ON number={}'.format(np.sum(events[0, :]==1)))
+    ON_scale = np.sum(events[0, :]==1)/(len(events[0, :])) # ON events in history
     # new_OFF_scale = np.sum(new_events[0, :]==-1)/len(events[0, :]) # ON new events in history
-    new_ON_scale = np.sum(new_events[0, :] == 1) / len(new_events[0, :])  # ON new events in history
+    new_ON_scale = np.sum(new_events[0, :] == 1) / (len(new_events[0, :]))  # ON new events in history
 
     # print('events_numbers={}, new_events_numbers={}'.format(len(events[0, :]), len(new_events[0, :])))
 
@@ -58,9 +59,13 @@ def cubes_3d_kernel_distance(events, new_events, x_sigma, y_sigma, t_sigma):
 
     """
 
-    distance = cubes_3d_kernel_method(events, events, x_sigma, y_sigma, t_sigma)
-    distance += cubes_3d_kernel_method(new_events, new_events, x_sigma, y_sigma, t_sigma)
-    distance -= 2 * cubes_3d_kernel_method(events, new_events, x_sigma, y_sigma, t_sigma)
+    if len(np.transpose(events)) <= 5 or len(np.transpose(events)) <= 5:
+        distance = 0
+    else:
+
+        distance = cubes_3d_kernel_method(events, events, x_sigma, y_sigma, t_sigma)
+        distance += cubes_3d_kernel_method(new_events, new_events, x_sigma, y_sigma, t_sigma)
+        distance -= 2 * cubes_3d_kernel_method(events, new_events, x_sigma, y_sigma, t_sigma)
 
     return distance
 

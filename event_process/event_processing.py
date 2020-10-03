@@ -68,12 +68,15 @@ def events_to_spike_cubes(events, width, height, x_cube_size, y_cube_size, t_cub
 
     num = int((width/x_cube_size)*(height/y_cube_size)*(math.ceil(max(events[1, :] / t_cube_size))))
     events_cube = [[] for _ in range(num)]
+    #print('num={}'.format(num))
 
     for i in range(events.shape[1]):
 
         k = math.floor(events[2, i]/x_cube_size) + math.floor(events[3, i]/y_cube_size)*int(width/x_cube_size) + math.floor(events[1, i]/t_cube_size)*int(width/x_cube_size)*int(height/y_cube_size)
 
+        #print('t_cube_size={}, k={}, i={}, event={}, feature={}'.format(t_cube_size, k, i, events[:, i], math.floor(events[1, i]/t_cube_size)))
         events_cube[k].append(events[:, i])
+
 
     return events_cube
 
@@ -227,3 +230,56 @@ def select_aer_events(events, time_length):
     return select_aer_data
 
 
+def separating_on_off_events(aer_data):
+    """
+    separation ON & OFF events in dynamic vision sensor.
+
+    Inputs:
+    -------
+        aer_data    - the dataset of AER sensor including polarity(t), timestamp(ts), x coordinate(X) and y coordinate(Y).
+
+    Outputs:
+    -------
+        events_ON    - ON events in the increasing intensity.
+        events_OFF    - OFF events in the decreasing intensity.
+
+    """
+    events_ON = np.zeros((4, np.count_nonzero(aer_data.t == 1)))
+    events_OFF = np.zeros((4, np.count_nonzero(aer_data.t == 0)))
+    index_ON = np.where(aer_data.t == 1)[0]
+    index_OFF = np.where(aer_data.t == 0)[0]
+
+    # save ON events for AER sensor
+    events_ON[0, :] = aer_data.t[index_ON]
+    events_ON[1, :] = aer_data.ts[index_ON]
+    events_ON[2, :] = aer_data.x[index_ON]
+    events_ON[3, :] = aer_data.y[index_ON]
+
+    # save ON events for AER sensor
+    events_OFF[0, :] = aer_data.t[index_OFF]
+    events_OFF[1, :] = aer_data.ts[index_OFF]
+    events_OFF[2, :] = aer_data.x[index_OFF]
+    events_OFF[3, :] = aer_data.y[index_OFF]
+
+    return events_ON, events_OFF
+
+def separating_ON_OFF_events(events):
+    """
+    separation ON & OFF events in dynamic vision sensor.
+
+    Inputs:
+    -------
+        events    - the dataset of AER sensor including polarity(t), timestamp(ts), x coordinate(X) and y coordinate(Y).
+
+    Outputs:
+    -------
+        events_ON    - ON events in the increasing intensity.
+        events_OFF    - OFF events in the decreasing intensity.
+
+    """
+    index_ON = np.where(events[3,:]==1)
+    index_OFF = np.where(events[3,:]==-1)
+    ON_events = events[:, index_ON]
+    OFF_events = events[:, index_OFF]
+
+    return ON_events, OFF_events

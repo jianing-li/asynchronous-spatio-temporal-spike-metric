@@ -42,6 +42,12 @@ def _main(args):
     if args.operation_type == "spatial_temporal_changing":
         spike_cubes_distances_curves.show_temporal_spatial_random_changing(events, 8000, 10)
 
+    elif args.operation_type == "temporal_spatial_translation":
+        spike_cubes_distances_curves.show_temporal_spatial_translation(events,50, 50)
+
+    elif args.operation_type == "spike_cube_rotation":
+        spike_cubes_distances_curves.show_spike_cubes_rotation(events, 360, width=128, height=128)
+
     elif args.operation_type == "removing_spikes":
         spike_cubes_distances_curves.show_random_removing_spikes(events, 1000)
 

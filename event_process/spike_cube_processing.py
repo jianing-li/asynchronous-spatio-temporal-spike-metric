@@ -6,7 +6,81 @@ Author: Jianing Li, lijianing@pku.edu.cn, Peking University, Jan. 23th, 2019.
 import numpy as np
 import random
 from event_process.generating_spike_cube import random_spike_cubes
+import math
 
+def center_rotation(events, rotation_theta, width, height):
+    """
+   Spike cube rotation.
+
+   Inputs:
+   -------
+   events    - numpy.array: the spike cube includes polarity, timestamp, x coordinate and y coordinate.
+   rotation_theta  - spike cube around center coordination rotation.
+   width, height    - the array size of event camera.
+
+   Outputs:
+   -------
+       new_events    - the new events by rotation operation.
+   """
+    rotation_theta = rotation_theta / 180 * (math.pi)
+    new_events = np.copy(events)
+    center_cordinate = [width / 2-10, height / 2-10] # w/2, h/2-10
+    for i in range(len(events[1])):
+        # x_new = x*cos(theta) - y*sin(theta)
+        if (events[2][i] - center_cordinate[0]) * math.cos(rotation_theta) - (
+                events[3][i] - center_cordinate[1]) * math.sin(rotation_theta) + center_cordinate[0] > width:
+            new_events[2][i] = width - 1
+        if (events[2][i] - center_cordinate[0]) * math.cos(rotation_theta) - (
+                events[3][i] - center_cordinate[1]) * math.sin(rotation_theta) + center_cordinate[0] < 0:
+            new_events[2][i] = 0
+        else:
+            new_events[2][i] = (events[2][i] - center_cordinate[0]) * math.cos(rotation_theta) - (
+                        events[3][i] - center_cordinate[1]) * math.sin(rotation_theta) + center_cordinate[0]
+
+        # y_new = y*cos(theta) + x*sin(theta)
+        if (events[3][i] - center_cordinate[1]) * math.cos(rotation_theta) + (
+                events[2][i] - center_cordinate[0]) * math.sin(rotation_theta) + center_cordinate[1] > height:
+            new_events[3][i] = height - 1
+        if (events[3][i] - center_cordinate[1]) * math.cos(rotation_theta) + (
+                events[2][i] - center_cordinate[0]) * math.sin(rotation_theta) + center_cordinate[1] < 0:
+            new_events[3][i] = 0
+        else:
+            new_events[3][i] = (events[3][i] - center_cordinate[1]) * math.cos(rotation_theta) + (
+                        events[2][i] - center_cordinate[0]) * math.sin(rotation_theta) + center_cordinate[1]
+
+    return new_events
+
+
+def spatial_temporal_trans(events, max_width, max_height):
+    """
+    image plane translation.
+
+    Inputs:
+    -------
+    events    - numpy.array: the spike cube includes polarity, timestamp, x coordinate and y coordinate.
+    max_width    - the maximum spatial changing size.
+    max_height   - the maximum temporal changing size.
+
+    Outputs:
+    -------
+        new_events    - the new events by spatial-temporal random change.
+    """
+
+    new_events = np.copy(events)
+    max_timestamp = max(events[1])
+
+    for i in range(len(events[1])):
+        if new_events[2][i] - int(max_width / max_timestamp * events[1][i]) <= 0:
+            new_events[2][i] = 0
+        else:
+            new_events[2][i] = new_events[2][i] - int(max_width / max_timestamp * events[1][i])
+
+        if new_events[3][i] - int(max_height / max_timestamp * events[1][i]) <= 0:
+            new_events[3][i] = 0
+        else:
+            new_events[3][i] = new_events[3][i] - int(max_height / max_timestamp * events[1][i])
+
+    return new_events
 
 def temporal_cyclic_displacement(events, k):
     """
@@ -88,7 +162,7 @@ def temporal_spatial_cyclic_displacement(events, width, temporal_step, spatial_s
         if new_events[2, i] > spatial_index:
             spatial_temporal_events[2, i] = new_events[2, i] + spatial_step - width
         else:
-            spatial_temporal_events[2, i] = new_events[2, i] + spatial_step
+            spatial_temporal_events[2, i] = new_events[2, i] + spatial_step-1
 
     return spatial_temporal_events
 
@@ -115,7 +189,7 @@ def random_remove_spikes(events, spike_numbers):
     return new_events
 
 
-def spatial_temporal_random_change(events, temporal_size, spatial_size):
+def spatial_temporal_random_change(events, temporal_size, spatial_size, width, height):
     """
     spatial and temporal random change for spike cube.
 
@@ -144,6 +218,13 @@ def spatial_temporal_random_change(events, temporal_size, spatial_size):
         new_y_coordinate = events[3] + spatial_random
         new_events[2] = abs(new_x_coordinate)
         new_events[3] = abs(new_y_coordinate)
+
+    for i in range(len(events[2])):
+        if new_events[2][i] >= width:
+            new_events[2][i] = width-1
+        if new_events[3][i] >= height:
+            new_events[3][i] = height-1
+
 
     new_events = new_events[:, new_events[1, :].argsort()] # sorted by timestamp
 
